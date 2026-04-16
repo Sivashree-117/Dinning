@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍽️ RoyalTable - Premium Dining Reservations</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', 'Poppins', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Animated Welcome Screen */
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #f093fb, #f5576c);
+            background-size: 300% 300%;
+            animation: gradientShift 4s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .welcome-content {
+            text-align: center;
+            animation: bounceIn 1s ease-out;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .welcome-content h1 {
+            font-size: 4rem;
+            color: white;
+            text-shadow: 3px 3px 10px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+        
+        .enter-btn {
+            background: white;
+            border: none;
+            padding: 15px 50px;
+            font-size: 1.3rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #667eea;
+            transition: transform 0.3s;
+        }
+        
+        .enter-btn:hover { transform: scale(1.1); }
+        
+        /* Main App Container */
+        .app-container {
+            display: none;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Menu Button */
+        .menu-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+        
+        .menu-btn:hover { transform: scale(1.05); }
+        
+        /* Menu Modal */
+        .menu-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(25, 24, 24, 0.95);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .menu-content {
+            max-width: 1200px;
+            margin: 50px auto;
+            background: linear-gradient(135deg, #e4adc9 0%, #ffe6f0 100%);
+            border-radius: 30px;
+            padding: 30px;
+        }
+        
+        .menu-category {
+            margin: 30px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 20px;
+        }
+        
+        .menu-items { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+            gap: 10px; 
+            margin-top: 15px; 
+        }
+        
+        .menu-item { 
+            padding: 10px; 
+            background: rgb(141, 200, 218); 
+            border-radius: 12px; 
+            text-align: center;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        
+        .menu-item:hover { transform: scale(1.05); background: #0aa7bc; }
+        
+        /* Page Styles - Vibrant Colors */
+        .page {
+            background: linear-gradient(135deg, #f47d22 0%, #df89ab 50%, #33b3c4 100%);
+            border-radius: 30px;
+            padding: 40px;
+            margin: 20px 0;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .page h1 {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+        }
+        
+        .hotel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .hotel-card {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: #333;
+            padding: 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .hotel-card:hover { 
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+        
+        /* Table Grid - Attractive Design */
+        .table-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .table-card {
+            padding: 20px;
+            text-align: center;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        .table-available { 
+            background: linear-gradient(135deg, #98163b, #07aabc);
+            color: white;
+            box-shadow: 0 4px 10px rgba(76,175,80,0.3);
+        }
+        
+        .table-reserved { 
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .table-card.table-available:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(76,175,80,0.5);
+        }
+        
+        input, select, button {
+            padding: 12px 20px;
+            margin: 10px 0;
+            border-radius: 12px;
+            border: 2px solid #ddd;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: #764ba2;
+            outline: none;
+            box-shadow: 0 0 10px rgba(118,75,162,0.3);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            padding: 12px 30px;
+            margin: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 15px;
+        }
+        
+        .back-btn {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+        
+        .next-btn {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+        
+        .summary-card {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            padding: 25px;
+            border-radius: 20px;
+            margin: 20px 0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .catchy-line {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #764ba2;
+            margin: 15px 0;
+            font-style: italic;
+        }
+        
+        .location-card, .star-card {
+            background: linear-gradient(135deg, #f474cf, #ef94b1);
+            padding: 20px;
+            border-radius: 20px;
+            margin: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .location-card:hover, .star-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome-screen" id="welcomeScreen">
+        <div class="welcome-content">
+            <h1>🍽️ RoyalTable Dining</h1>
+            <h2 style="color:white; margin-bottom:30px;">Experience Luxury Dining ✨</h2>
+            <button class="enter-btn" onclick="enterWebsite()">Enter Now →</button>
+        </div>
+    </div>
+    
+    <div class="app-container" id="appContainer">
+        <button class="menu-btn" onclick="showMenu()">🍔 Explore Menu</button>
+        <div id="content"></div>
+    </div>
+    
+    <div class="menu-modal" id="menuModal">
+        <div class="menu-content">
+            <button onclick="closeMenu()" style="background:#f44336; float:right;">✖ Close</button>
+            <h1 style="text-align:center; margin-bottom:20px;">🍽️ Our Exquisite Menu</h1>
+            <div class="menu-category"><h2>🥤 Fresh Juices (10)</h2><div class="menu-items" id="juicesMenu"></div></div>
+            <div class="menu-category"><h2>🍢 Starters (15)</h2><div class="menu-items" id="startersMenu"></div></div>
+            <div class="menu-category"><h2>🥦 Veg Main Course (20)</h2><div class="menu-items" id="vegMenu"></div></div>
+            <div class="menu-category"><h2>🍗 Non-Veg Main Course (20)</h2><div class="menu-items" id="nonvegMenu"></div></div>
+            <div class="menu-category"><h2>🍰 Desserts & Sweets (20)</h2><div class="menu-items" id="dessertsMenu"></div></div>
+        </div>
+    </div>
+    
+    <script>
+        let bookingData = { starClass: '', location: '', hotel: '', acType: '', mealType: '', timing: '', date: '', persons: 1, tableNumber: null };
+        let availableTables = [];
+        let currentPage = 0;
+        
+        // Updated Desserts with 20 items
+        const desserts20 = [
+            'Gulab Jamun 🍯', 'Rasgulla 🧀', 'Tiramisu ☕', 'Cheesecake 🍰', 'Brownie 🍫',
+            'Ice Cream 🍦', 'Macarons 🎀', 'Donuts 🍩', 'Chocolate Lava Cake 🔥', 'Panna Cotta 🥛',
+            'Jalebi 🧡', 'Kaju Katli 💎', 'Baklava 🥨', 'Churros ✨', 'Cupcake 🧁',
+            'Apple Pie 🥧', 'Mousse 🍮', 'Falooda 🥤', 'Pudding 🍚', 'Kulfi 🍨'
+        ];
+        
+        const juices = ['Mango Juice 🥭','Orange Juice 🍊','Pineapple Juice 🍍','Watermelon Juice 🍉','Apple Juice 🍎','Pomegranate Juice','Grape Juice 🍇','Lemon Juice 🍋','Tender Coconut Water 🥥','Mixed Fruit Juice'];
+        const starters = ['Gobi Manchurian','Paneer Tikka','Veg Spring Rolls','Baby Corn Fry','Mushroom Pepper Fry','Hara Bhara Kebab','Veg Pakora','Chicken 65 ','Chicken Lollipop','Fish Fry','Prawn Fry','Mutton Pepper Fry','Chicken Tikka','Egg Podimas','Crab Lollipop'];
+        const vegItems = ['Idli','Dosa','Masala Dosa','Pongal','Poori','Upma','Rava Dosa','Uttapam','South Indian Meals','Sambar Rice','Lemon Rice','Curd Rice','Tomato Rice','Coconut Rice','Veg Biryani','Chapati with Kurma','Parotta with Veg Salna','Bisibelabath','Vegetable Fried Rice','Paneer Butter Masala with Naan'];
+        const nonvegItems = ['Egg Dosa','Kalaki','Chicken Stuffed Dosa','Kothu Parotta','Egg Parotta','Chicken Kothu Parotta','Mutton Kothu Parotta','Fish Dosa','Chicken Biryani','Mutton Biryani','Fish Curry Meals','Chicken Curry Meals','Mutton Curry Meals','Prawn Biryani','Nethili Fish Fry Meals','Chicken Fried Rice','Egg Fried Rice','Chicken Chettinad','Mutton Sukka','Crab Curry'];
+        
+        function loadMenus() {
+            document.getElementById('juicesMenu').innerHTML = juices.map(j => `<div class="menu-item">${j}</div>`).join('');
+            document.getElementById('startersMenu').innerHTML = starters.map(s => `<div class="menu-item">${s}</div>`).join('');
+            document.getElementById('vegMenu').innerHTML = vegItems.map(v => `<div class="menu-item">${v}</div>`).join('');
+            document.getElementById('nonvegMenu').innerHTML = nonvegItems.map(n => `<div class="menu-item">${n}</div>`).join('');
+            document.getElementById('dessertsMenu').innerHTML = desserts20.map(d => `<div class="menu-item">${d}</div>`).join('');
+        }
+        
+        function showMenu() { document.getElementById('menuModal').style.display = 'block'; loadMenus(); }
+        function closeMenu() { document.getElementById('menuModal').style.display = 'none'; }
+        
+        function enterWebsite() {
+            document.getElementById('welcomeScreen').style.transform = 'translateX(-100%)';
+            setTimeout(() => {
+                document.getElementById('welcomeScreen').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'block';
+                showLocationPage();
+            }, 800);
+        }
+        
+        async function showLocationPage() {
+            currentPage = 1;
+            const res = await fetch('http://localhost:3005/api/locations');
+            const locations = await res.json();
+            document.getElementById('content').innerHTML = `
+                <div class="page">
+                    <h1>📍 Choose Your Dream Location</h1>
+                    <div class="catchy-line">✨ "Where every meal becomes a memory!" ✨</div>
+                    <div class="hotel-grid">
+                        ${locations.map(loc => `<div class="location-card" style="padding:20px; border-radius:15px; background:linear-gradient(135deg,#ffecd2,#fcb69f); cursor:pointer;" onclick="selectLocation('${loc}')">${loc}</div>`).join('')}
+                    </div>
+                </div>`;
+        }
+        
+        function selectLocation(location) {
+            bookingData.location = location;
+            document.getElementById('content').innerHTML = `
+                <div class="page">
+                    <h1>⭐ Choose Your Preferred Class</h1>
+                    <div class="catchy-line">🌟 "Luxury awaits at every star!" 🌟</div>
+                    <div class="hotel-grid">
+                        <div class="star-card" style="padding:25px; background:linear-gradient(135deg,#ffd89b,#19547b); color:white;" onclick="selectStar('3')">⭐⭐⭐ 3-Star Hotel<br>💰 Advance: ₹500</div>
+                        <div class="star-card" style="padding:25px; background:linear-gradient(135deg,#b92b27,#1565c0); color:white;" onclick="selectStar('4')">⭐⭐⭐⭐ 4-Star Hotel<br>💰 Advance: ₹1000</div>
+                        <div class="star-card" style="padding:25px; background:linear-gradient(135deg,#ff6e7f,#bfe9ff); color:white;" onclick="selectStar('5')">⭐⭐⭐⭐⭐ 5-Star Hotel<br>💰 Advance: ₹1500</div>
+                    </div>
+                    <div class="nav-buttons"><button class="back-btn" onclick="showLocationPage()">◀ Back</button></div>
+                </div>`;
+        }
+        
+        function selectStar(star) {
+            bookingData.starClass = star;
+            showHotelsPage();
+        }
+        
+        async function showHotelsPage() {
+            const res = await fetch(`http://localhost:3005/api/hotels?location=${bookingData.location}&starClass=${bookingData.starClass}`);
+            const hotels = await res.json();
+            document.getElementById('content').innerHTML = `
+                <div class="page">
+                    <h1>🏨 Choose Your Premium Hotel</h1>
+                    <div class="catchy-line">🏆 "Discover elegance, embrace comfort!" 🏆</div>
+                    <div class="hotel-grid">
+                        ${hotels.map(hotel => `<div class="hotel-card" onclick="selectHotel('${hotel}')">🏨 ${hotel}</div>`).join('')}
+                    </div>
+                    <div class="nav-buttons">
+                        <button class="back-btn" onclick="selectLocation('${bookingData.location}')">◀ Back</button>
+                    </div>
+                </div>`;
+        }
+        
+        function selectHotel(hotel) {
+            bookingData.hotel = hotel;
+            showDiningOptions();
+        }
+        
+        function showDiningOptions() {
+            document.getElementById('content').innerHTML = `
+                <div class="page">
+                    <h1>🍽️ Customize Your Dining Experience</h1>
+                    <div class="catchy-line">🎯 "Tailored just for you!" 🎯</div>
+                    <label>❄️ AC or Non-AC:</label><br>
+                    <select id="acType"><option value="AC">❄️ AC (Premium)</option><option value="Non-AC">🌬️ Non-AC (Natural Breeze)</option></select><br>
+                    <label>🍳 Meal Type:</label><br>
+                    <select id="mealType" onchange="updateTimings()"><option value="breakfast">🍳 Breakfast (7-11 AM)</option><option value="lunch">🍛 Lunch (12-4 PM)</option><option value="dinner">🍽️ Dinner (7-11:30 PM)</option></select><br>
+                    <label>⏰ Select Timing:</label><br>
+                    <select id="timing"></select><br>
+                    <label>📅 Select Date (Today & Future only):</label><br>
+                    <input type="date" id="date" min="${new Date().toISOString().split('T')[0]}"><br>
+                    <label>👥 Number of Persons:</label><br>
+                    <input type="number" id="persons" min="1" max="20" value="2"><br>
+                    <div class="nav-buttons">
+                        <button class="back-btn" onclick="showHotelsPage()">◀ Back</button>
+                        <button class="next-btn" onclick="proceedToTables()">Next → Select Table</button>
+                    </div>
+                </div>`;
+            updateTimings();
+        }
+        
+        function updateTimings() {
+            const meal = document.getElementById('mealType').value;
+            let timings = [];
+            if (meal === 'breakfast') timings = ['7:00-9:00 AM ☀️', '8:00-10:00 AM 🌅', '9:00-11:00 AM 🌞', '10:00-12:00 PM 🌤️'];
+            else if (meal === 'lunch') timings = ['12:00-2:00 PM 🕛', '1:00-3:00 PM 🕐', '2:00-4:00 PM 🕑', '3:00-5:00 PM 🕒'];
+            else timings = ['7:00-9:00 PM 🌙', '8:00-10:00 PM ✨', '9:00-11:00 PM 🌟', '10:00-11:30 PM 🌌'];
+            const select = document.getElementById('timing');
+            select.innerHTML = timings.map(t => `<option value="${t}">${t}</option>`).join('');
+        }
+        
+        async function proceedToTables() {
+            bookingData.acType = document.getElementById('acType').value;
+            bookingData.mealType = document.getElementById('mealType').value;
+            bookingData.timing = document.getElementById('timing').value;
+            bookingData.date = document.getElementById('date').value;
+            bookingData.persons = parseInt(document.getElementById('persons').value);
+            
+            if (!bookingData.date) { alert('Please select a date!'); return; }
+            
+            const res = await fetch('http://localhost:3005/api/tables/check', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ hotel: bookingData.hotel, date: bookingData.date })
+            });
+            availableTables = await res.json();
+            
+            document.getElementById('content').innerHTML = `
+                <div class="page">
+                    <h1>🪑 Select Your Perfect Table</h1>
+                    <div class="catchy-line">💺 "Pick your spot, we'll handle the rest!" 💺</div>
+                    <div class="table-grid" id="tableGrid"></div>
+                    <div class="nav-buttons">
+                        <button class="back-btn" onclick="showDiningOptions()">◀ Back</button>
+                        <button class="next-btn" onclick="showCustomerForm()">Confirm Table →</button>
+                    </div>
+                </div>`;
+            renderTables();
+        }
+        
+        function renderTables() {
+            const grid = document.getElementById('tableGrid');
+            grid.innerHTML = availableTables.map(table => `
+                <div class="table-card ${table.status === 'available' ? 'table-available' : 'table-reserved'}" 
+                     onclick="${table.status === 'available' ? `selectTable(${table.number})` : 'alert(\"❌ Sorry! This table is already reserved. Please choose another.\")'}">
+                    🪑 Table ${table.number}<br>${table.status === 'available' ? '✅ Available' : '🔴 Reserved'}
+                </div>
+            `).join('');
+        }
+        
+        function selectTable(num) {
+            bookingData.tableNumber = num;
+            alert(`✅ Table ${num} selected successfully!`);
+            document.querySelectorAll('.table-card').forEach(card => {
+                card.style.border = '3px solid gold';
+            });
+        }
+        
+        function showCustomerForm() {
+            if (!bookingData.tableNumber) { alert('⚠️ Please select a table first!'); return; }
+            const advance = bookingData.starClass === '3' ? 500 : bookingData.starClass === '4' ? 1000 : 1500;
+            document.getElementById('content').innerHTML = `
+                <div class="page">
+                    <h1>📝 Complete Your Booking</h1>
+                    <div class="catchy-line">💳 "Almost there! Just a few details away from your perfect meal!" 💳</div>
+                    <p style="font-size:1.2rem; background:#ffe0e0; padding:10px; border-radius:10px;">💰 Advance Payment Required: ₹${advance}</p>
+                    <input type="text" id="name" placeholder="Full Name" required><br>
+                    <input type="tel" id="mobile" placeholder="Mobile Number" required><br>
+                    <input type="email" id="email" placeholder="Email Address" required><br>
+                    <select id="payment"><option>💳 Card Payment</option><option>📱 UPI Payment</option><option>🏦 Net Banking</option></select><br>
+                    <div class="nav-buttons">
+                        <button class="back-btn" onclick="proceedToTables()">◀ Back</button>
+                        <button class="next-btn" onclick="processPayment()">Pay Advance & Confirm ✅</button>
+                    </div>
+                </div>`;
+        }
+        
+        async function processPayment() {
+            const name = document.getElementById('name').value;
+            const mobile = document.getElementById('mobile').value;
+            const email = document.getElementById('email').value;
+            const paymentMethod = document.getElementById('payment').value;
+            
+            if (!name || !mobile || !email) { alert('⚠️ Please fill all details!'); return; }
+            
+            const otp = prompt('🔐 Enter OTP (Demo OTP: 123456)');
+            if (otp === '123456') {
+                const reservation = { ...bookingData, name, mobile, email, paymentMethod };
+                const res = await fetch('http://localhost:3005/api/reservations', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(reservation)
+                });
+                const result = await res.json();
+                if (result.success) {
+                    await fetch('http://localhost:3005/api/tables/reserve', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ tableNumber: bookingData.tableNumber, hotel: bookingData.hotel, date: bookingData.date })
+                    });
+                    alert(`✅ Payment Successful! ₹${result.advanceAmount} paid. Booking ID: ${result.id}`);
+                    showSummary(result.id);
+                } else alert('❌ Booking failed!');
+            } else alert('❌ Invalid OTP! Demo OTP: 123456');
+        }
+        
+        async function showSummary(id) {
+            const res = await fetch(`http://localhost:3005/api/reservations/${id}`);
+            const data = await res.json();
+            document.getElementById('content').innerHTML = `
+                <div class="page">
+                    <h1>🎉 Booking Confirmed! 🎉</h1>
+                    <div class="catchy-line">✨ "Your table awaits! Get ready for a memorable dining experience!" ✨</div>
+                                        <div class="summary-card">
+                        <h2>📋 Your Reservation Details</h2>
+                        <p>📍 <strong>Location:</strong> ${data.location}</p>
+                        <p>⭐ <strong>Hotel Class:</strong> ${data.star_class}-Star</p>
+                        <p>🏨 <strong>Hotel:</strong> ${data.hotel}</p>
+                        <p>❄️ <strong>AC Type:</strong> ${data.ac_type}</p>
+                        <p>🍽️ <strong>Meal Type:</strong> ${data.meal_type}</p>
+                        <p>⏰ <strong>Timing:</strong> ${data.timing}</p>
+                        <p>📅 <strong>Date:</strong> ${data.date}</p>
+                        <p>👥 <strong>Number of Persons:</strong> ${data.persons}</p>
+                        <p>🪑 <strong>Table Number:</strong> ${data.table_number}</p>
+                        <p>👤 <strong>Customer Name:</strong> ${data.customer_name}</p>
+                        <p>📞 <strong>Mobile Number:</strong> ${data.mobile}</p>
+                        <p>📧 <strong>Email:</strong> ${data.email}</p>
+                        <p>💰 <strong>Advance Paid:</strong> ₹${data.advance_paid}</p>
+                        <p>💳 <strong>Payment Method:</strong> ${data.payment_method}</p>
+                    </div>
+                    <div class="catchy-line">🌟 "Thank you for choosing RoyalTable! We look forward to serving you!" 🌟</div>
+                    <div class="nav-buttons">
+                        <button class="back-btn" onclick="showLocationPage()">🏠 Book Another Table</button>
+                        <button class="next-btn" onclick="window.location.reload()">🔄 Start Over</button>
+                    </div>
+                </div>`;
+        }
+    </script>
+</body>
+</html>
